@@ -398,6 +398,7 @@ Variables will be set, if it will be possible to discover them, if not, they wil
 |`TVD_PGCLUSTER_NAME` | Cluster name |
 |`PGDATA`|Data directory|
 |`PGPORT`|Current port|
+|`PGSQL_BASE`|PgOperate related. If parameters_<alias>.conf file exists, then PGSQL_BASE from it will be sourced|
 |`PGBASENV_ALIAS`|Current alias name|
 |`TVD_PGSTATUS`|The status, UP or DOWN|
 |`TVD_PGVERSION`|Data directory version|
