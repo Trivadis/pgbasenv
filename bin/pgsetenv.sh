@@ -70,6 +70,7 @@ pgunsetclsenv() {
   unset TVD_PGCLUSTER_NAME
   unset PGDATA
   unset PGPORT
+  unset PGSQL_BASE
   unset TVD_PGHOME
   unset TVD_PGSTATUS
   unset TVD_PGVERSION
@@ -269,6 +270,13 @@ EOF
   # Cluster archive mode status 
   dbv_arch=$(dv dbv_arch)
   [[ ! -z $dbv_arch ]] && export TVD_PGARCHIVE_MODE=$dbv_arch
+
+  # Set PGSQL_BASE from pgOperate parameters_<alias>.conf file if exists.
+  if [[ -f $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf ]]; then
+    local pgsql_base=$(grep -E "^PGSQL_BASE.*=" $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf)
+    eval "export $pgsql_base"
+  fi
+
 
 }
 

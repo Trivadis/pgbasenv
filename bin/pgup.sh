@@ -88,6 +88,16 @@ print_pghometab() {
 print_pgclustertab() {
   local line delimiter ftime fhtime size
 
+  if [[ ! -f $pgclustertab_file ]]; then
+    echo -e "\n --- No pgclustertab file found. --- \n"
+    return 1
+  fi
+  local ddcnt=$(cat $pgclustertab_file | grep -vE '^ *#' | wc -l)
+  if [[ $ddcnt -eq 0 ]]; then
+    echo -e "\n --- No clustr data directories found. --- \n"
+    return 0
+  fi
+
   local pgdata_max=$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $1}' | wc -L)
   local home_max=$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $3}' | wc -L)
   local alias_max=$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $5}' | wc -L)
