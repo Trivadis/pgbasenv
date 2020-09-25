@@ -271,13 +271,6 @@ EOF
   dbv_arch=$(dv dbv_arch)
   [[ ! -z $dbv_arch ]] && export TVD_PGARCHIVE_MODE=$dbv_arch
 
-  # Set PGSQL_BASE from pgOperate parameters_<alias>.conf file if exists.
-  if [[ -f $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf ]]; then
-    local pgsql_base=$(grep -E "^PGSQL_BASE.*=" $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf)
-    eval "export $pgsql_base"
-  fi
-
-
 }
 
 
@@ -350,9 +343,11 @@ if [[ -z $pgbasenv_pgalias ]]; then
   fi
 
   if [[ -f $PGBASENV_BASE/etc/pgclustertab ]]; then
-    while IFS=";" read -r _ _ _ _ alias; do
-       alias $alias="pgsetenvsta $alias"
-    done <<< "$(cat $PGBASENV_BASE/etc/pgclustertab | grep -vE '^ *#')"
+    if [[ ! $(cat $PGBASENV_BASE/etc/pgclustertab | grep -vE '^ *#' | wc -l) -eq 0 ]]; then
+      while IFS=";" read -r _ _ _ _ alias; do
+        alias $alias="pgsetenvsta $alias"
+      done <<< "$(cat $PGBASENV_BASE/etc/pgclustertab | grep -vE '^ *#')"
+    fi
   else
     echo "Failed to load $PGBASENV_BASE/etc/pgclustertab. File not exist."
   fi
@@ -432,6 +427,13 @@ if [[ -z $pgbasenv_PGHOME_ITEM && ! -z $pgbasenv_PGCLUSTER_ITEM ]]; then
   pgsetclsenv
 
   [[ -f $PGBASENV_BASE/etc/${PGBASENV_ALIAS}.env ]] && source $PGBASENV_BASE/etc/${PGBASENV_ALIAS}.env
+
+  # Set PGSQL_BASE from pgOperate parameters_<alias>.conf file if exists.
+  if [[ -f $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf ]]; then
+    local pgsql_base=$(grep -E "^PGSQL_BASE.*=" $PGOPERATE_BASE/etc/parameters_${pgbasenv_pgalias}.conf)
+    eval "export $pgsql_base"
+  fi
+
 
 
 elif [[ ! -z $pgbasenv_PGHOME_ITEM ]]; then
