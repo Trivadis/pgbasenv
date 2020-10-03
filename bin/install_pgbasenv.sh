@@ -68,10 +68,13 @@ if [[ $? -gt 0 ]]; then
   fi
 fi
 
-TARFILE=$(ls -1tr pgbasenv-*.tar | tail -1)
+TARFILE=$(ls -1tr pgbasenv-*.tar 2> /dev/null| tail -1)
 if [[ -z $TARFILE ]]; then
 	echo "ERROR: Tar file pgbasenv-(VERSION).tar do not found in current directory!"
 	exit 1
+else
+  echo "Installing from $TARFILE"
+  echo
 fi
 
 echo -e "\n>>> INSTALLATION STEP: Creating main \$HOME/.PGBASENV_HOME file.\n"

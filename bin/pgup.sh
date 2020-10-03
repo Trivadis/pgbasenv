@@ -171,7 +171,7 @@ done
 
 find_datadir_of_running_proc() {
 local d
-for d in $(lsof -p $1 | grep DIR | awk '{print $9}'); do
+for d in $(lsof -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
   [[ -f $d/global/pg_control ]] && echo $d
 done
 }
