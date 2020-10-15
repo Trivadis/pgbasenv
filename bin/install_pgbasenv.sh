@@ -68,7 +68,7 @@ if [[ $? -gt 0 ]]; then
   fi
 fi
 
-TARFILE=$(ls -1tr pgbasenv-*.tar 2> /dev/null| tail -1)
+TARFILE=$(ls -1 pgbasenv-*.tar 2>/dev/null | sort -n -t"-" -k2 | tail -1)
 if [[ -z $TARFILE ]]; then
 	echo "ERROR: Tar file pgbasenv-(VERSION).tar do not found in current directory!"
 	exit 1

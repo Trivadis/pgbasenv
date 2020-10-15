@@ -40,6 +40,8 @@ echo -e "\nCurrent version: ${current_version}\n"
 
 echo -e "Destination directory: $bundle_dir\n"
 
+[[ ! -z $bundle_dir ]] && rm -f $bundle_dir/*
+
 cp install_pgbasenv.sh $bundle_dir
 [[ $? -gt 0 ]] && echo -e "\nFAILURE\n" && exit 1
 
