@@ -21,13 +21,13 @@
 #
 # Change log:
 #   06.05.2020: Aychin: Initial version created
-#
+#   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #
 
 declare -r VERSION=1.1
 
 owner=$(id -un)
-
+declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
 
 PGBASENV_EXCLUDE_DIRS_DEF="tmp proc sys"
 PGBASENV_EXCLUDE_FILESYSTEMS_DEF="nfs tmpfs"
@@ -228,7 +228,7 @@ done
 
 find_datadir_of_running_proc() {
 local d
-for d in $(lsof -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
+for d in $($LSOF -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
   [[ -f $d/global/pg_control ]] && echo $d
 done
 }

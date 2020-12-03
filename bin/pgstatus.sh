@@ -22,16 +22,18 @@
 #
 # Change log:
 #   06.05.2020: Aychin: Initial version created
-#
+#   03.12.2020: Aychin: tput will be set to xterm. Required for remote execution.
 #
 
-declare -r GREEN=$(tput setaf 2)
-declare -r RED=$(tput setaf 1)
-declare -r NORMAL=$(tput sgr0)
-declare -r WHITE=$(tput setaf 7)
-declare -r BLUEBG=$(tput setab 4 && tput bold)
-declare -r CYAN=$(tput setaf 6)
-declare -r BOLD=$(tput bold)
+declare -r TPUT="tput -T xterm"
+
+declare -r GREEN=$($TPUT setaf 2)
+declare -r RED=$($TPUT setaf 1)
+declare -r NORMAL=$($TPUT sgr0)
+declare -r WHITE=$($TPUT setaf 7)
+declare -r BLUEBG=$($TPUT setab 4 && $TPUT bold)
+declare -r CYAN=$($TPUT setaf 6)
+declare -r BOLD=$($TPUT bold)
 
 print_current_conf() {
 

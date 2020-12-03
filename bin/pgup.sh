@@ -21,9 +21,11 @@
 #
 # Change log:
 #   06.05.2020: Aychin: Initial version created
-#
+#   03.12.2020: Aychin: tput will be set to xterm. Required for remote execution.
+#   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #
 
+declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
 
 # Set PGBASENV environment 
 if [[ -z $PGBASENV_BASE ]]; then
@@ -47,16 +49,16 @@ fi
 declare -r pghometab_file=$PGBASENV_BASE/etc/pghometab
 declare -r pgclustertab_file=$PGBASENV_BASE/etc/pgclustertab
 
+declare -r TPUT="tput -T xterm"
 
-declare -r GREEN=$(tput setaf 2)
-declare -r GREENB=$(tput setaf 2 && tput bold)
-declare -r RED=$(tput setaf 1)
-declare -r NORMAL=$(tput sgr0)
-declare -r WHITE=$(tput setaf 7)
-declare -r BLUEBG=$(tput setab 4 && tput bold)
-declare -r CYAN=$(tput setaf 6)
-declare -r BOLD=$(tput bold)
-
+declare -r GREEN=$($TPUT setaf 2)
+declare -r GREENB=$($TPUT setaf 2 && $TPUT bold)
+declare -r RED=$($TPUT setaf 1)
+declare -r NORMAL=$($TPUT sgr0)
+declare -r WHITE=$($TPUT setaf 7)
+declare -r BLUEBG=$($TPUT setab 4 && $TPUT bold)
+declare -r CYAN=$($TPUT setaf 6)
+declare -r BOLD=$($TPUT bold)
 
 print_pghometab() {
   local line delimiter
@@ -171,7 +173,7 @@ done
 
 find_datadir_of_running_proc() {
 local d
-for d in $(lsof -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
+for d in $($LSOF -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
   [[ -f $d/global/pg_control ]] && echo $d
 done
 }
