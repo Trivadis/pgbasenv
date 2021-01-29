@@ -73,6 +73,8 @@ There are few main folders:
     -- etc
     |
     -- bundle
+    |
+    -- scripts
 
 Folders `bin` and `etc` are relevant for developers.
 
@@ -82,6 +84,7 @@ Usually bundle folder includes tar file and installer script.
 
 If you will fork this repository to make modifications, then you should modify scripts in `bin` directory. After all modifications are done, then use `bundle.sh` script to create a new ready to install bundle in the `bundle` folder.
 
+Folder `scripts` used to store any useful scripts. All scripts in this folder will be available from `psql` over special variables. Check the description on this page and `readme.txt` inside scripts folder.
 
 # Installation and upgrade
 There is installer script available in `bundle` directory to make installation process fast and easy. It has also silent execution mode which can be used for bulk installations.
@@ -471,9 +474,11 @@ Example:
 -- DESCRIPTION: Collect postgres index stats.
 ```
 
-If `NAME` descriptor will not be found or null, then script name, without ".sql" part will used.
+If `NAME` descriptor will not be found or null, then script name, without ".sql" part will be used.
+
 If `VERSIONS` descriptor will not be found or null, then script will be available on all versions.
-If `DESCRIPTION` descriptor will not be found or null, then no description.
+
+If `DESCRIPTION` descriptor will not be found or null, then no description will be displayed.
 
 To execute from command line use pipe, `-c` will not work:
 ```

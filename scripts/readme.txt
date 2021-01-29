@@ -1,5 +1,5 @@
 
-Each script in this directory will be available in the psql under special variable.
+Each script in this directory will be available in the psql under special variables.
 
 Copy the script into this directory, then call psql from any location.
 
