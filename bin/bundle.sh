@@ -30,9 +30,9 @@ dir=$(pwd) && dir=${dir//\/pgbasenv\/bin/}
 
 [[ ! -f pgbasenv.sh ]] && echo "Execute this script from the pgbasenv bin directory." && exit 1
 
-#current_version=$(./pgbasenv.sh --version)
-current_version=$(grep "VERSION=" ./pgbasenv.sh | awk -F= {'print $2'})
-[[ $? -gt 0 ]] && echo -e "\nFAILURE\n" && exit 1
+current_version=$(cat ./VERSION)
+#current_version=$(grep "VERSION=" ./pgbasenv.sh | awk -F= {'print $2'})
+#[[ $? -gt 0 ]] && echo -e "\nFAILURE\n" && exit 1
 
 echo -e "\nCurrent version: ${current_version}\n"
 
