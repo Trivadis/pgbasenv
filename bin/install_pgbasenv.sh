@@ -20,7 +20,7 @@
 #
 # Change log:
 #   06.05.2020: Aychin: Initial version created
-#
+#   29.01.2021: Aychin: Added support for scripts. psqlrc file.
 #
 
 # Defaults
@@ -182,6 +182,23 @@ PGBASENV_SEARCH_MAXDEPTH=\"$PGBASENV_SEARCH_MAXDEPTH\"
 fi
 
 echo -e "\nSUCCESS"
+
+echo -e "\n>>> INSTALLATION STEP: Create/update .psqlrc file.\n"
+
+if [[ -f ~/.psqlrc ]]; then
+   cp ~/.psqlrc ~/.psqlrc.backup
+   sed -i '/PGBASENV BEGIN/,/PGBASENV END/d' ~/.psqlrc
+else
+   touch ~/.psqlrc
+fi
+echo "-- PGBASENV BEGIN ---------------------------------" >> ~/.psqlrc
+echo "\set pgbasenv_base \`echo \"$PGBASENV_BASE\"\`" >> ~/.psqlrc
+echo "\! $PGBASENV_BASE/bin/scriptmgr.sh prep" >> ~/.psqlrc
+echo "select substring(''||:VERSION_NAME, 1, position('.' in ''||:VERSION_NAME)-1) as pgreleasenum" >> ~/.psqlrc
+echo "\gset" >> ~/.psqlrc
+echo "\i :pgbasenv_base/scripts/.run.:pgreleasenum" >> ~/.psqlrc
+echo "-- PGBASENV END -----------------------------------" >> ~/.psqlrc
+
 
 echo -e "\n>>> INSTALLATION STEP: Executing first scan of the system.\n"
 

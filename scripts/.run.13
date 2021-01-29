@@ -1,0 +1,3 @@
+\set scripts '\\! /var/lib/pgsql/tvdtoolbox/pgbasenv/bin/scriptmgr.sh list'
+\set index_stats '\\i /var/lib/pgsql/tvdtoolbox/pgbasenv/scripts/index_stats.sql'
+\set test '\\i /var/lib/pgsql/tvdtoolbox/pgbasenv/scripts/test.sql'

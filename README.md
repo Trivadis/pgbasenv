@@ -137,6 +137,8 @@ The variable name is `PGBASENV_INITIAL_ALIAS`, if it will be left null, which is
 ### Upgrade
 If it is not the fresh installation, then script will use the already configured `$TVDBASE/pgbasenv` location and will updated scripts to the new versions. User specific config files will not be updated or modified.
 
+Just execute `./install_pgbasenv.sh` from bundle direcotry. Latest version tar file will be installed by default.
+
 ### Force mode
 To overwrite upgrade mode force option can be used. Then, installation script will behave like in fresh installation mode.
 
@@ -167,6 +169,7 @@ Example:
                               |         |-- pgsetenv.sh
                               |         |-- pgup.sh
                               |         |-- pgstatus.sh
+                              |         |-- scriptmgr.sh
                               |
                               |-- etc --
                                         |-- pgbasenv.conf
@@ -182,6 +185,7 @@ Description of the scripts:
 |`pgup.sh`|`pgup`|`u`|Will print the information from tab files and add runtime information to it.|
 |`pgsetenv.sh`|`pgsetenv`||Sourcing script, it will set the global and object level environment.|
 |`pgstatus.sh`|`pgstatus`|`sta`|Will print the information about currently set environment.|
+|`scriptmgr.sh`|||Will be used to expose $PGBASENV_BASE/scripts contents to psql. Not for explicit execution.|
 
 Each script will be exported to the current shell over the functions (Func column), it will make it possible to access them fast and from any location.
 
@@ -427,6 +431,54 @@ There are also some very useful aliases, like `vic` which will open *postgresql.
 Check the `$PGBASENV_BASE/etc/pgbasenv_standard.conf` for the predefined variables and aliases.
 
 You can define you own or overwrite defaults one in `$PGBASENV_BASE/etc/pgbasenv.conf` file.
+
+
+# Custom scripts in $PGBASENV_BASE/scripts folder
+
+Each script in this directory will be available in the `psql` under special variables.
+
+Copy any script into this directory, then call `psql` from any location.
+
+Enter the variable "`:scripts`" in `psql` prompt. It will list you all the scripts available for current PostgreSQL version.
+
+```
+postgres=# :scripts
+
+ Name (Variable)               | Versions       | Description
+======================================================================================================================
+ :myscript1                    | *              | Script description here
+ :myscript2                    | 12,13          | Second script description
+======================================================================================================================
+Count: 2
+```
+It will be enough to enter "`:myscript1`" to execute the script.
+
+```
+postgres=# :myscript1
+```
+
+You can put special descriptors in your scripts:
+```
+-- NAME: <script_name_without_space>
+-- VERSIONS: <comma separated major versions on which this script can run>
+-- DESCRIPTION: <description of the script>
+```
+
+Example:
+```
+-- NAME: index_stats
+-- VERSIONS: 12,13
+-- DESCRIPTION: Collect postgres index stats.
+```
+
+If `NAME` descriptor will not be found or null, then script name, without ".sql" part will used.
+If `VERSIONS` descriptor will not be found or null, then script will be available on all versions.
+If `DESCRIPTION` descriptor will not be found or null, then no description.
+
+To execute from command line use pipe, `-c` will not work:
+```
+$ echo ":myscript1" | psql
+```
 
 
 # Using pgBasEnv in scripts

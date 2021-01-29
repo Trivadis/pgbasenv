@@ -24,7 +24,8 @@
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #
 
-declare -r VERSION=1.1
+declare -r SCRIPTDIR="$( cd "$(dirname "$0")" ; pwd -P )"
+declare -r VERSION=$(cat $SCRIPTDIR/VERSION)
 
 owner=$(id -un)
 declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
