@@ -2,7 +2,7 @@
 
 pgBasEnv is a tool to set environment for community PostgreSQL and EnterpriseDB versions 9.6+.
 
-Check the CHANGELOG.md for new features and changes introduced in new versions of the tool.
+Check the [Change Log](CHANGELOG.md) for new features and changes introduced in new versions of the tool.
 
 Functionality includes:
 
@@ -509,7 +509,11 @@ For example you want to start backup on standby site only, then your script will
     source $HOME/.pgbasenv_profile
 
     # Call pgsetenv to set environment for your data directory
+    # You can use data directory itself
     pgsetenv /u02/pgdata/tbx05
+    
+    # or its alias
+    pgsetenv pg12
     
     # Now all the variables, functions and aliases are available for you
 
