@@ -23,6 +23,7 @@
 #   06.05.2020: Aychin: Initial version created
 #   03.12.2020: Aychin: tput will be set to xterm. Required for remote execution.
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
+#   05.02.2020: Aychin: New styling
 #
 
 declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
@@ -60,30 +61,39 @@ declare -r BLUEBG=$($TPUT setab 4 && $TPUT bold)
 declare -r CYAN=$($TPUT setaf 6)
 declare -r BOLD=$($TPUT bold)
 
+hl() {
+    local delimiter
+    for (( i=1; i<=$1; i++ )); do
+      delimiter="${delimiter}─"
+    done
+    echo $delimiter
+  }
+
+
 print_pghometab() {
   local line delimiter
 
   local home_max=$(cat $pghometab_file | grep -vE '^ *#' | awk -F";" '{print $1}' | wc -L)
   local alias_max=$(cat $pghometab_file | grep -vE '^ *#' | awk -F";" '{print $4}' | wc -L)
   
-  local format_top="${BOLD}%-${alias_max}s${NORMAL} | ${BOLD}%7s${NORMAL} | ${BOLD}%15s${NORMAL} | ${BOLD}%-${home_max}s${NORMAL}\n"
-  local format="${BOLD}%-${alias_max}s${NORMAL} | %7s | %15s | %-${home_max}s\n"
+  [[ $alias_max -lt 5 ]] && alias_max=5
+  [[ $home_max -lt 8 ]] && home_max=8 
+ 
+  local format_top="│${BOLD}%-${alias_max}s${NORMAL} │ ${BOLD}%7s${NORMAL} │ ${BOLD}%15s${NORMAL} │ ${BOLD}%-${home_max}s${NORMAL}│\n"
+  local format="│${BOLD}%-${alias_max}s${NORMAL} │ %7s │ %15s │ %-${home_max}s│\n"
   local max=$((31+home_max+alias_max))
   
-  for (( i=1; i<=$max; i++ )); do
-    delimiter="${delimiter}="
-  done
+  printf "┌─" && printf "%s" "$(hl ${alias_max})" && printf "┬─" && printf "%s" "$(hl 7)" && printf "─┬─" && printf "%s" "$(hl 15)" && printf "─┬" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┐"
 
-  printf "%s\n" "$delimiter"
   printf "$format_top" "ALIAS" "VER" "OPTIONS" "HOME DIR"
-  printf "%s\n" "$delimiter"
-
+  printf "├─" && printf "%s" "$(hl ${alias_max})" && printf "┼─" && printf "%s" "$(hl 7)" && printf "─┼─" && printf "%s" "$(hl 15)" && printf "─┼" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┤"
   
   while IFS=";" read -r home version options alias; do
     printf "$format" $alias $version $options $home
   done <<< "$(cat $pghometab_file | grep -vE '^ *#')"
-  
-  printf "%s\n\n" "$delimiter"
+ 
+  printf "└─" && printf "%s" "$(hl ${alias_max})" && printf "┴─" && printf "%s" "$(hl 7)" && printf "─┴─" && printf "%s" "$(hl 15)" && printf "─┴" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┘" 
+ printf "%s\n"
 
 }
 
@@ -104,20 +114,22 @@ print_pgclustertab() {
   local home_max=$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $3}' | wc -L)
   local alias_max=$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $5}' | wc -L)
 
-  local format_top="${BOLD}%-${alias_max}s${NORMAL} | ${BOLD}%5s${NORMAL} | ${BOLD}%4s${NORMAL} | ${BOLD}%5s${NORMAL} | ${BOLD}%7s${NORMAL} | ${BOLD}%5s${NORMAL} | ${BOLD}%-${pgdata_max}s${NORMAL} | ${BOLD}%16s${NORMAL} | ${BOLD}%-${home_max}s${NORMAL}\n"
-  local format="${BOLD}%-${alias_max}s${NORMAL} | %5s | %4s | %5s | %7s | %5s | %-${pgdata_max}s | %16s | %-${home_max}s\n"
-  local format_up="${GREENB}%-${alias_max}s${NORMAL}${GREEN} | %5s | %4s | %5s | %7s | %5s | %-${pgdata_max}s | %16s | %-${home_max}s${NORMAL}\n"
+  [[ $alias_max -lt 5 ]] && alias_max=5
+  [[ $home_max -lt 15 ]] && home_max=15
+  [[ $pgdata_max -lt 6 ]] && pgdata_max=6
 
+  local format_top="│${BOLD}%-${alias_max}s${NORMAL} │ ${BOLD}%5s${NORMAL} │ ${BOLD}%4s${NORMAL} │ ${BOLD}%5s${NORMAL} │ ${BOLD}%7s${NORMAL} │ ${BOLD}%5s${NORMAL} │ ${BOLD}%-${pgdata_max}s${NORMAL} │ ${BOLD}%16s${NORMAL} │ ${BOLD}%-${home_max}s${NORMAL}│\n"
+  local format="│${BOLD}%-${alias_max}s${NORMAL} │ %5s │ %4s │ %5s │ %7s │ %5s │ %-${pgdata_max}s │ %16s │ %-${home_max}s│\n"
+  #local format_up="│${GREENB}%-${alias_max}s${NORMAL}${GREEN} │ %5s │ %4s │ %5s │ %7s │ %5s │ %-${pgdata_max}s │ %16s │ %-${home_max}s${NORMAL}│\n"
+  local format_up="│\033[1;32m%-${alias_max}s\033[0m │ \033[1;32m%5s\033[0m │ \033[1;32m%4s\033[0m │ \033[1;32m%5s\033[0m │ \033[1;32m%7s\033[0m │ \033[1;32m%5s\033[0m │ \033[1;32m%-${pgdata_max}s\033[0m │ \033[1;32m%16s\033[0m │ \033[1;32m%-${home_max}s\033[0m│\n"
+  
   local max=$((66+pgdata_max+home_max+alias_max))
 
   if [[ ! $MODE == "--list" ]]; then
-  for (( i=1; i<=$max; i++ )); do
-    delimiter="${delimiter}="
-  done
 
-  printf "%s\n" "$delimiter"
+  printf "┌─" && printf "%s" "$(hl ${alias_max})" && printf "┬─" && printf "%s" "$(hl 5)" && printf "─┬─" && printf "%s" "$(hl 4)" && printf "─┬─" && printf "%s" "$(hl 5)" && printf "─┬─" && printf "%s" "$(hl 7)" && printf "─┬─" && printf "%s" "$(hl 5)" && printf "─┬─" && printf "%s" "$(hl ${pgdata_max})" && printf "─┬─" && printf "%s" "$(hl 16)" && printf "─┬" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┐"
   printf "$format_top" "ALIAS" "VER" "STAT" "PORT" "PID" "SIZE" "PGDATA" "LAST START" "LAST START HOME" 
-  printf "%s\n" "$delimiter"
+printf "├─" && printf "%s" "$(hl ${alias_max})" && printf "┼─" && printf "%s" "$(hl 5)" && printf "─┼─" && printf "%s" "$(hl 4)" && printf "─┼─" && printf "%s" "$(hl 5)" && printf "─┼─" && printf "%s" "$(hl 7)" && printf "─┼─" && printf "%s" "$(hl 5)" && printf "─┼─" && printf "%s" "$(hl ${pgdata_max})" && printf "─┼─" && printf "%s" "$(hl 16)" && printf "─┼" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┤"
   fi
   
   while IFS=";" read -r pgdata version last_home port alias; do
@@ -153,8 +165,9 @@ print_pgclustertab() {
 
   done <<< "$(cat $pgclustertab_file | grep -vE '^ *#')"
   
-  printf "%s\n\n" "$delimiter"
-  
+  printf "└─" && printf "%s" "$(hl ${alias_max})" && printf "┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 4)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 7)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl ${pgdata_max})" && printf "─┴─" && printf "%s" "$(hl 16)" && printf "─┴" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┘"
+  printf "%s\n" 
+
 }
 
 

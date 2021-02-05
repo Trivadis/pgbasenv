@@ -1,6 +1,6 @@
 
 -- NAME: index_stats
--- VERSIONS:
+-- VERSION:
 -- DESCRIPTION: Collect postgres index stats.
 
 /*collect postgres index stats

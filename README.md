@@ -2,6 +2,8 @@
 
 pgBasEnv is a tool to set environment for community PostgreSQL and EnterpriseDB versions 9.6+.
 
+Check the CHANGELOG.md for new features and changes introduced in new versions of the tool.
+
 Functionality includes:
 
  - Discover installed homes and data directories
@@ -11,36 +13,35 @@ Functionality includes:
 
 ### Output example
 
-      pgBasEnv v1.0 by Trivadis AG
+      pgBasEnv v1.3 by Trivadis AG
     
     Installation homes:
-    =======================================================================
-    ALIAS    |     VER |         OPTIONS | HOME DIR
-    =======================================================================
-    pgh9615  |  9.6.15 |       ssl:2G:8K | /u01/app/postgres/product/9.6.15
-    pgh115   |    11.5 |       ssl:2G:8K | /u01/app/postgres/product/11.5
-    pgh1010  |   10.10 |       ssl:2G:8K | /u01/app/postgres/product/10.10
-    pgh115A  |    11.5 |       ssl:1G:8K | /usr/pgsql-11
-    pgh1010A |   10.10 |       ssl:1G:8K | /usr/pgsql-10
-    pgh9615A |  9.6.15 |       ssl:1G:8K | /usr/pgsql-9.6
-    pgh120   |    12.0 |       ssl:1G:8K | /usr/pgsql-12
-    =======================================================================
-    
+    ┌─────────┬─────────┬─────────────────┬─────────────────────────────────┐
+    │ALIAS    │     VER │         OPTIONS │ HOME DIR                        │
+    ├─────────┼─────────┼─────────────────┼─────────────────────────────────┤
+    │pgh9615  │  9.6.15 │       ssl:2G:8K │ /u01/app/postgres/product/9.6.15│
+    │pgh115   │    11.5 │       ssl:2G:8K │ /u01/app/postgres/product/11.5  │
+    │pgh1010  │   10.10 │       ssl:2G:8K │ /u01/app/postgres/product/10.10 │
+    │pgh115A  │    11.5 │       ssl:1G:8K │ /usr/pgsql-11                   │
+    │pgh1010A │   10.10 │       ssl:1G:8K │ /usr/pgsql-10                   │
+    │pgh9615A │  9.6.15 │       ssl:1G:8K │ /usr/pgsql-9.6                  │
+    │pgh120   │    12.0 │       ssl:1G:8K │ /usr/pgsql-12                   │
+    └─────────┴─────────┴─────────────────┴─────────────────────────────────┘
+
     Cluster data directories:
-    ===============================================================================================================================
-    ALIAS  |   VER | STAT |  PORT |     PID |  SIZE | PGDATA                  |       LAST START | LAST START HOME
-    ===============================================================================================================================
-    pgd96  |   9.6 |   UP |  5436 |   25107 |   39M | /u02/pgdata/tbx06       | 2020-02-13 16:28 | /u01/app/postgres/product/9.6.15
-    pgd10  |    10 | DOWN |       |         |   40M | /u02/pgdata/newdb/data  |                  |
-    pgd10A |    10 | DOWN |       |         |   40M | /u02/pgdata/newdb/data2 |                  |
-    pgd12  |    12 |   UP |  5437 |   25309 |   41M | /u02/pgdata/tbx07       | 2020-02-13 16:30 | /usr/pgsql-12
-    pgd10B |    10 |   UP |  5435 |   31296 |   56M | /u02/pgdata/tbx05       | 2020-04-24 18:33 | /u01/app/postgres/product/10.10
-    pgd96A |   9.6 |   UP |  5433 |   18854 |   39M | /u02/pgdata/tbx03       | 2020-04-22 12:23 | /usr/pgsql-9.6
-    pgd11  |    11 | DOWN |       |         |  104M | /u02/pgdata/tbx01       | 2020-02-13 16:21 | /usr/pgsql-11
-    pgd11A |    11 | DOWN |       |         |   40M | /var/lib/pgsql/11/data  | 2020-04-22 16:12 | /u01/app/postgres/product/11.5
-    pgd10C |    10 | DOWN |       |         |   40M | /var/lib/pgsql/10/data  | 2019-09-26 15:07 | /usr/pgsql-10
-    ===============================================================================================================================
-    
+    ┌───────┬───────┬──────┬───────┬─────────┬───────┬─────────────────────────┬──────────────────┬──────────────────────────────────┐
+    │ALIAS  │   VER │ STAT │  PORT │     PID │  SIZE │ PGDATA                  │       LAST START │ LAST START HOME                  │
+    ├───────┼───────┼──────┼───────┼─────────┼───────┼─────────────────────────┼──────────────────┼──────────────────────────────────┤
+    │pgd96  │   9.6 │   UP │  5436 │   25107 │   39M │ /u02/pgdata/tbx06       │ 2020-02-13 16:28 │ /u01/app/postgres/product/9.6.15 │
+    │pgd10  │    10 │ DOWN │       │         │   40M │ /u02/pgdata/newdb/data  │                  │                                  │
+    │pgd10A │    10 │ DOWN │       │         │   40M │ /u02/pgdata/newdb/data2 │                  │                                  │
+    │pgd12  │    12 │   UP │  5437 │   25309 │   41M │ /u02/pgdata/tbx07       │ 2020-02-13 16:30 │ /usr/pgsql-12                    │
+    │pgd10B │    10 │   UP │  5435 │   31296 │   56M │ /u02/pgdata/tbx05       │ 2020-04-24 18:33 │ /u01/app/postgres/product/10.10  │
+    │pgd96A │   9.6 │   UP │  5433 │   18854 │   39M │ /u02/pgdata/tbx03       │ 2020-04-22 12:23 │ /usr/pgsql-9.6                   │
+    │pgd11  │    11 │ DOWN │       │         │  104M │ /u02/pgdata/tbx01       │ 2020-02-13 16:21 │ /usr/pgsql-11                    │
+    │pgd11A │    11 │ DOWN │       │         │   40M │ /var/lib/pgsql/11/data  │ 2020-04-22 16:12 │ /u01/app/postgres/product/11.5   │
+    │pgd10C │    10 │ DOWN │       │         │   40M │ /var/lib/pgsql/10/data  │ 2019-09-26 15:07 │ /usr/pgsql-10                    │
+    └───────┴───────┴──────┴───────┴─────────┴───────┴─────────────────────────┴──────────────────┴──────────────────────────────────┘ 
     
     ---[pgd12]:
     
@@ -447,12 +448,14 @@ Enter the variable "`:scripts`" in `psql` prompt. It will list you all the scrip
 ```
 postgres=# :scripts
 
- Name (Variable)               | Versions       | Description
-======================================================================================================================
- :myscript1                    | *              | Script description here
- :myscript2                    | 12,13          | Second script description
-======================================================================================================================
-Count: 2
+ pgBaseEnv scripts:
+┌───────────────────────────────┬─────────────┬──────────────────────────────────────────────────────────────────────────┐
+│ Name (Variable)               │ Min. Version│ Description                                                              │
+├───────────────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ :myscript1                    │ *           │ Script description here                                                  │
+│ :myscript2                    │ 12          │ Second script description                                                │
+└───────────────────────────────┴─────────────┴──────────────────────────────────────────────────────────────────────────┘
+ Count: 2
 ```
 It will be enough to enter "`:myscript1`" to execute the script.
 
@@ -462,17 +465,23 @@ postgres=# :myscript1
 
 You can put special descriptors in your scripts:
 ```
--- NAME: <script_name_without_space>
--- VERSIONS: <comma separated major versions on which this script can run>
--- DESCRIPTION: <description of the script>
+-- NAME: <script_name_without_space> (Max length 30 characters)
+-- VERSION: <minimum major PostgreSQL version supported for this script> (Must be a number)
+-- DESCRIPTION: <description of the script> (Max length 73 characters)
 ```
 
 Example:
 ```
 -- NAME: index_stats
--- VERSIONS: 12,13
+-- VERSION: 12
 -- DESCRIPTION: Collect postgres index stats.
+
+select ....
+  from ....
+  where ....;
 ```
+
+This script will not be listed in psql version 11, but will be available in version 12 and later.
 
 If `NAME` descriptor will not be found or null, then script name, without ".sql" part will be used.
 
