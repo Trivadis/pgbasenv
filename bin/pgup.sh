@@ -24,9 +24,10 @@
 #   03.12.2020: Aychin: tput will be set to xterm. Required for remote execution.
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #   05.02.2020: Aychin: New styling
+#   12.02.2020: Aychin: Support for SUSE Linux
 #
 
-declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
+declare -r LSOF=$([[ ! -f /bin/lsof ]] && which lsof || echo "lsof")
 
 # Set PGBASENV environment 
 if [[ -z $PGBASENV_BASE ]]; then
@@ -193,7 +194,14 @@ done
 
 
 find_port_of_running_proc() {
-netstat -ltnp 2>/dev/null| grep -E "^tcp .* $1" | awk '{print $4}' | cut -d":" -f2
+   local pid=$1
+   which netstat > /dev/null 2>&1
+   local RC=$?
+   if [[ $RC -eq 0 ]]; then
+     netstat -ltnp 2>/dev/null| grep -E "^tcp .* ${pid}" | awk '{print $4}' | cut -d":" -f2
+   else
+     ss -ltnp | grep "pid=${pid}," | awk '{print $4}' | cut -d":" -f2
+   fi
 }
 
 
