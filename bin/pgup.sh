@@ -166,8 +166,10 @@ printf "├─" && printf "%s" "$(hl ${alias_max})" && printf "┼─" && printf
 
   done <<< "$(cat $pgclustertab_file | grep -vE '^ *#')"
   
-  printf "└─" && printf "%s" "$(hl ${alias_max})" && printf "┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 4)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 7)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl ${pgdata_max})" && printf "─┴─" && printf "%s" "$(hl 16)" && printf "─┴" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┘"
-  printf "%s\n" 
+  if [[ ! $MODE == "--list" ]]; then
+    printf "└─" && printf "%s" "$(hl ${alias_max})" && printf "┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 4)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl 7)" && printf "─┴─" && printf "%s" "$(hl 5)" && printf "─┴─" && printf "%s" "$(hl ${pgdata_max})" && printf "─┴─" && printf "%s" "$(hl 16)" && printf "─┴" && printf "%s" "$(hl ${home_max})" && printf "%s\n" "─┘"
+    printf "%s\n" 
+  fi
 
 }
 
