@@ -22,6 +22,7 @@
 # Change log:
 #   06.05.2020: Aychin: Initial version created
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
+#   14.02.2020: Aychin: Added flock to serialize tab files access.
 #
 
 declare -r SCRIPTDIR="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -309,9 +310,15 @@ fi
 
 ALL_DIRS=$(find_all_dirs)
 
+exec 9<>$pghometab_file
+flock -x 9
 generate_pghometab
+exec 9>&-
 
+exec 11<>$pgclustertab_file
+flock -x 11
 generate_pgclustertab
+exec 11>&-
 
 exit 0
 

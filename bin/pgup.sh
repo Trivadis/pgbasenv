@@ -25,6 +25,7 @@
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #   05.02.2020: Aychin: New styling
 #   12.02.2020: Aychin: Support for SUSE Linux
+#   14.02.2020: Aychin: Added flock to prevent showing partial information.
 #
 
 declare -r LSOF=$([[ ! -f /bin/lsof ]] && which lsof || echo "lsof")
@@ -217,15 +218,22 @@ declare MODE=$1
 
 ALL_RUNNING_INSTANCES=$(find_running_procs)
 
+
 if [[ ! $MODE == "--list" ]]; then
  echo -e "\npgBasEnv ${BOLD}v$(pgbasenv --version)${NORMAL} by Trivadis AG"
  echo -e
  echo "Installation homes:"
+ exec 9<$pghometab_file
+ flock -x 9
  print_pghometab
+ exec 9>&-
 fi
 
 [[ ! $MODE == "--list" ]] && echo "Cluster data directories:"
+exec 11<$pgclustertab_file
+flock -x 11
 print_pgclustertab
+exec 11>&-
 
 exit 0
 
