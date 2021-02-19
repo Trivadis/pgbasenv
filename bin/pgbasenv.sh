@@ -74,17 +74,25 @@ declare -r pgclustertab_file=$PGBASENV_BASE/etc/pgclustertab
 
 
 ### Process parameters ######################
-for d in $PGBASENV_EXCLUDE_DIRS; do
-  xdirs=$xdirs" -I "$d
-done
-
 if [[ ! -z $PGBASENV_EXCLUDE_FILESYSTEMS ]]; then
-for d in $PGBASENV_EXCLUDE_FILESYSTEMS; do
-  xfstype="$xfstype -fstype $d -o "
+for fs in $PGBASENV_EXCLUDE_FILESYSTEMS; do
+  xfstype="$xfstype -fstype $fs -o "
+  xfstypedf="$xfstypedf -t $fs "
 done
   xfstype=${xfstype%-o*}
   xfstype=" ! \( $xfstype \)"
 fi
+
+if [[ ! -z $xfstypedf ]]; then
+  xdirs2=$(df --output=target $xfstypedf 2>/dev/null | grep -v ^Mounted | xargs)
+  xdirs2=${xdirs2//\//}
+fi
+
+PGBASENV_EXCLUDE_DIRS="$PGBASENV_EXCLUDE_DIRS $xdirs2"
+
+for d in $PGBASENV_EXCLUDE_DIRS; do
+  xdirs=$xdirs" -I "$d
+done
 #############################################
 
 
@@ -168,7 +176,7 @@ local d dir size ftime home fhtime version data_id data_ids existing_data_id id_
 for d in $(echo $ALL_DIRS); do
   if [[ -f $d/pg_control ]]; then
     dir="$(dirname $d)"
-    version=$(head -1 $dir/PG_VERSION)
+    [[ -f $dir/PG_VERSION ]] && version=$(head -1 $dir/PG_VERSION) || version=0
     if [[ -f $dir/postmaster.opts ]]; then
       home=$(dirname $(dirname $(cat $dir/postmaster.opts | awk '{print $1}')))
     else
