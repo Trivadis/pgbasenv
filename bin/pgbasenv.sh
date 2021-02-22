@@ -282,6 +282,7 @@ generate_pgclustertab() {
   local data_ids
   # Check if pgclustertab exists
   if [[ -f $pgclustertab_file ]]; then
+    cp $pgclustertab_file ${pgclustertab_file}.bkp
     # File exists. Save all existing data_ids from the pgclustertab
     data_ids="$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $1";"$3";"$4";"$5}')"
     # Pass data dir ids to the data dir discovery function
