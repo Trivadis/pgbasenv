@@ -77,6 +77,9 @@ pgunsetclsenv() {
   unset TVD_PGSTART_TIME
   unset TVD_PGIS_STANDBY
   unset TVD_PGIS_INRECOVERY
+  unset TVD_PGSTANDBY_STATUS
+  unset TVD_PGMASTER_HOST
+  unset TVD_PGMASTER_PORT
   unset TVD_PGCLUSTER_SIZE
   unset TVD_PGCLUSTER_DATABASES
   unset TVD_PGUSER_DATABASES
@@ -163,7 +166,7 @@ pglogfile() {
 
 
 pgsetclsenv() {
-  local psqlout dbv_cl_name dbv_is_recmode dbv_cls_size dbv_dbs dbv_dbs_user dbv_cls_age dbv_av_stat dbv_log_collector dbv_log_dir dbv_log_file dbv_conf dbv_hba dbv_arch
+  local psqlout dbv_cl_name dbv_is_recmode dbv_cls_size stb_status dbv_dbs dbv_dbs_user dbv_cls_age dbv_av_stat dbv_log_collector dbv_log_dir dbv_log_file dbv_conf dbv_hba dbv_arch
 
   dv() {
     echo "$psqlout" | grep "${1}:" | cut -d":" -f2 | tr '\n' ' ' | xargs
@@ -190,6 +193,7 @@ pgsetclsenv() {
 psqlout="$($TVD_PGHOME/bin/psql -U $PGBASENV_CHECK_USER -d $PGBASENV_CHECK_DATABASE -t <<EOF
 select 'dbv_cl_name:'||setting from pg_settings where name='cluster_name';
 select 'dbv_is_recmode:'||pg_is_in_recovery();
+select 'stb_status:'||sender_host||'|'||sender_port||'|'||status from pg_stat_wal_receiver;
 select 'dbv_cls_size:'||pg_size_pretty(sum(pg_tablespace_size(spcname))) from pg_tablespace;
 select 'dbv_dbs:'||datname from pg_database;
 select 'dbv_dbs_user:'||datname from pg_database where datname not in ('postgres','enterprisedb','template0','template1');
@@ -213,6 +217,14 @@ EOF
   dbv_is_recmode=$(dv dbv_is_recmode)
   if [[ ! -z $dbv_is_recmode ]]; then 
         [[ ${dbv_is_recmode:0:1} == "t" ]] && export TVD_PGIS_INRECOVERY="YES" || export TVD_PGIS_INRECOVERY="NO"
+  fi
+
+  # Standby related
+  stb_status=$(dv stb_status)
+  if [[ ! -z $stb_status ]]; then 
+        export TVD_PGSTANDBY_STATUS=$(echo $stb_status | cut -d"|" -f3)
+        export TVD_PGMASTER_HOST=$(echo $stb_status | cut -d"|" -f1)
+        export TVD_PGMASTER_PORT=$(echo $stb_status | cut -d"|" -f2)
   fi
 
   # Overall cluster size, including all tablespaces
@@ -466,7 +478,6 @@ fi
 
 if [[ -z $PGBASENV_ALIAS ]]; then
   pgunsetclsenv
-  [[ ! $use_pgdata_as_alias ]] && echo "Error: No such alias." || echo "Error: No such cluster data directory."
 fi
 
 fi

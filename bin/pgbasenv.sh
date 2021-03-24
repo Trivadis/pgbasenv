@@ -34,6 +34,7 @@ declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
 PGBASENV_EXCLUDE_DIRS_DEF="tmp proc sys"
 PGBASENV_EXCLUDE_FILESYSTEMS_DEF="nfs tmpfs"
 PGBASENV_SEARCH_MAXDEPTH_DEF=7
+PGBASENV_SEARCH_TIMEOUT_DEF=5
 
 
 # Set PGBASENV environment 
@@ -61,9 +62,10 @@ else
 fi
 
 
-[[ -z PGBASENV_EXCLUDE_DIRS ]] && PGBASENV_EXCLUDE_DIRS=$PGBASENV_EXCLUDE_DIRS_DEF
-[[ -z PGBASENV_EXCLUDE_FILESYSTEMS ]] && PGBASENV_EXCLUDE_FILESYSTEMS=$PGBASENV_EXCLUDE_FILESYSTEMS_DEF
-[[ -z PGBASENV_SEARCH_MAXDEPTH ]] && PGBASENV_SEARCH_MAXDEPTH=$PGBASENV_SEARCH_MAXDEPTH_DEF
+[[ -z $PGBASENV_EXCLUDE_DIRS ]] && PGBASENV_EXCLUDE_DIRS=$PGBASENV_EXCLUDE_DIRS_DEF
+[[ -z $PGBASENV_EXCLUDE_FILESYSTEMS ]] && PGBASENV_EXCLUDE_FILESYSTEMS=$PGBASENV_EXCLUDE_FILESYSTEMS_DEF
+[[ -z $PGBASENV_SEARCH_MAXDEPTH ]] && PGBASENV_SEARCH_MAXDEPTH=$PGBASENV_SEARCH_MAXDEPTH_DEF
+[[ -z $PGBASENV_SEARCH_TIMEOUT ]] && PGBASENV_SEARCH_TIMEOUT=$PGBASENV_SEARCH_TIMEOUT_DEF
 
 
 # All big and small letters
@@ -96,13 +98,16 @@ done
 #############################################
 
 
-
 find_all_dirs() {
+local timeout=$1
 local d dir
-local find_cmd="find /\$dir -maxdepth $PGBASENV_SEARCH_MAXDEPTH -type d \( -name bin -o -name global \) $xfstype 2>/dev/null"
+local TIMEDOUT_DIRS=""
+local find_cmd="timeout -k1 ${timeout}s find /\$dir -maxdepth $PGBASENV_SEARCH_MAXDEPTH -type d \( -name bin -o -name global \) $xfstype 2>/dev/null"
 for dir in $(ls / $xdirs); do
  eval "$find_cmd"
+ [[ $? -ge 124 ]] && TIMEDOUT_DIRS="$TIMEDOUT_DIRS $dir"
 done
+[[ ! -z $TIMEDOUT_DIRS ]] && echo "TIMEDOUT_DIRS=$TIMEDOUT_DIRS"
 }
 
 
@@ -253,9 +258,10 @@ netstat -ltnp 2>/dev/null| grep -E "^tcp .* $1" | awk '{print $4}' | cut -d":" -
 
 
 generate_pghometab() {
-  local home_ids
+  local home_ids old_file change
   # Check if pghometab exists
   if [[ -f $pghometab_file ]]; then
+    old_file=$(cat $pghometab_file)
     # File exists. Save all existing home_ids from the pghometab
     home_ids="$(cat $pghometab_file | grep -vE '^ *#' | awk -F";" '{print $1";"$4}')"
     # Pass home ids to the home discovery function
@@ -266,7 +272,11 @@ generate_pghometab() {
        echo "$save_comments" > $pghometab_file       
        find_pg_homes "$home_ids" >> $pghometab_file
     fi
-
+    change=$(diff <(echo "$old_file") $pghometab_file)
+    if [[ $? -gt 0 ]]; then
+       echo "-----$(date +"%Y-%m-%d %H:%M:%S")----------------------------------------------------------------" >> $pghometab_file.change
+       echo "$change" >> $pghometab_file.change
+    fi
     
   else
     # File not found, will be created
@@ -279,10 +289,10 @@ generate_pghometab() {
 
 
 generate_pgclustertab() {
-  local data_ids
+  local data_ids old_file change
   # Check if pgclustertab exists
   if [[ -f $pgclustertab_file ]]; then
-    cp $pgclustertab_file ${pgclustertab_file}.bkp
+    old_file=$(cat $pgclustertab_file)
     # File exists. Save all existing data_ids from the pgclustertab
     data_ids="$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $1";"$3";"$4";"$5}')"
     # Pass data dir ids to the data dir discovery function
@@ -293,7 +303,12 @@ generate_pgclustertab() {
      echo "$save_comments" > $pgclustertab_file
      find_pg_data "$data_ids" >> $pgclustertab_file
     fi
-    
+    change=$(diff <(echo "$old_file") $pgclustertab_file)
+    if [[ $? -gt 0 ]]; then
+       echo "-----$(date +"%Y-%m-%d %H:%M:%S")----------------------------------------------------------------" >> $pgclustertab_file.change
+       echo "$change" >> $pgclustertab_file.change
+    fi
+
   else
     # File not found, will be created
     echo -e "#\n# PGDATA;VERSION;HOME;PORT;ALIAS\n#" > $pgclustertab_file
@@ -317,15 +332,23 @@ if [[ $1 == "--force" ]]; then
    rm $pgclustertab_file 2> /dev/null 
 fi
 
-ALL_DIRS=$(find_all_dirs)
+
+ALL_DIRS=$(find_all_dirs $PGBASENV_SEARCH_TIMEOUT)
+TIMEDOUT_DIRS=$(echo "$ALL_DIRS" | grep TIMEDOUT_DIRS | cut -d"=" -f2)
+if [[ ! -z $TIMEDOUT_DIRS ]]; then
+  echo "Next folder(s), timed out during scan. Exclude them or decrease scan depth or increase the timeout in pgbasenv.conf."
+  echo "Root level folder(s):$TIMEDOUT_DIRS"
+  echo "Last search path was: $(echo "$ALL_DIRS" | grep -v TIMEDOUT_DIRS | tail -1)"
+  exit 124
+fi
 
 exec 9<>$pghometab_file
-flock -x 9
+flock -x -w 15 9
 generate_pghometab
 exec 9>&-
 
 exec 11<>$pgclustertab_file
-flock -x 11
+flock -x -w 15 11
 generate_pgclustertab
 exec 11>&-
 

@@ -224,14 +224,14 @@ if [[ ! $MODE == "--list" ]]; then
  echo -e
  echo "Installation homes:"
  exec 9<$pghometab_file
- flock -x 9
+ flock -x -w 15 9
  print_pghometab
  exec 9>&-
 fi
 
 [[ ! $MODE == "--list" ]] && echo "Cluster data directories:"
 exec 11<$pgclustertab_file
-flock -x 11
+flock -x -w 15 11
 print_pgclustertab
 exec 11>&-
 

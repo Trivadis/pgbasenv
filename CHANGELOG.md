@@ -1,4 +1,7 @@
+### v1.5
 
+* Additional information about standby status and incoming data stream will be reported. Now status of the wal receiver and master node:port will be reported. Standby status string: `Cluster role: STANDBY [ Status: streaming Master: masternode:5435 In recovery: YES ]`. As usual all these information will be available from the evn variables `TVD_PGMASTER_HOST`, `TVD_PGMASTER_PORT` and `TVD_PGSTANDBY_STATUS`.
+* Timeouts was added to find commands to prevent hangs. Parameter `PGBASENV_SEARCH_TIMEOUT` can be set in pgbasenv.conf to control this timout. By default it is 5 sec.
 
 ### v1.4
 

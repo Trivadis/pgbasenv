@@ -62,10 +62,23 @@ print_current_conf() {
   fi
   if [[ $TVD_PGIS_STANDBY == "YES" ]]; then
      printf "$format2" "Cluster role" && echo -n "${CYAN}STANDBY${NORMAL}"
-     if [[ ! -z $TVD_PGIS_INRECOVERY ]]; then 
-        echo -n " [Is in recovery mode: " 
-        [[ $TVD_PGIS_INRECOVERY == "YES" ]] && echo -e "${GREEN}$TVD_PGIS_INRECOVERY${NORMAL}]" || echo -e "${RED}$TVD_PGIS_INRECOVERY${NORMAL}]"
+     echo -n " ["
+     if [[ ! -z $TVD_PGSTANDBY_STATUS ]]; then 
+        echo -n " Status: " 
+        [[ $TVD_PGSTANDBY_STATUS == "streaming" ]] && echo -n "${GREEN}$TVD_PGSTANDBY_STATUS${NORMAL}" || echo -n "${RED}$TVD_PGSTANDBY_STATUS${NORMAL}"
+     else
+        echo -n " Status: "
+        echo -n "${RED}no-wal-receiver${NORMAL}"
      fi
+     if [[ ! -z $TVD_PGMASTER_HOST ]]; then 
+        echo -n " Master: " 
+        echo -n "${GREEN}${TVD_PGMASTER_HOST}:${TVD_PGMASTER_PORT}${NORMAL}"
+     fi
+     if [[ ! -z $TVD_PGIS_INRECOVERY ]]; then 
+        echo -n " In recovery: " 
+        [[ $TVD_PGIS_INRECOVERY == "YES" ]] && echo -n "${GREEN}$TVD_PGIS_INRECOVERY${NORMAL}" || echo -n "${RED}$TVD_PGIS_INRECOVERY${NORMAL}"
+     fi
+     echo -e " ]"
   fi
   [[ ! -z $TVD_PGCLUSTER_SIZE ]] && printf "$format" "Size of all tablespaces" "$TVD_PGCLUSTER_SIZE"
   [[ ! -z $TVD_PGARCHIVE_MODE ]] && printf "$format" "Cluster archive mode" "$TVD_PGARCHIVE_MODE"

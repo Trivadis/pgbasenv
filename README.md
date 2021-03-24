@@ -413,6 +413,9 @@ Variables will be set, if it will be possible to discover them, if not, they wil
 |`TVD_PGSTART_TIME`|Last time cluster was started|
 |`TVD_PGIS_STANDBY`|Is standby or not, YES or NO|
 |`TVD_PGIS_INRECOVERY`|Is standby in recovery or note, YES or NO|
+|`TVD_PGMASTER_HOST`|Master host name|
+|`TVD_PGMASTER_PORT`|Master port|
+|`TVD_PGSTANDBY_STATUS`|Status of the wal reveiver process from pg_stat_wal_receiver.|
 |`TVD_PGCLUSTER_SIZE`|The size of all tablespaces in human readable format|
 |`TVD_PGCLUSTER_DATABASES`|List of all databases in cluster|
 |`TVD_PGUSER_DATABASES`|List of all user created database in cluster|
