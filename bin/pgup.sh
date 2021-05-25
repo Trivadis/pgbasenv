@@ -180,7 +180,7 @@ printf "├─" && printf "%s" "$(hl ${alias_max})" && printf "┼─" && printf
 find_running_procs() {
 local i dir
 for i in $(ps -o ppid= -C postgres -C postmaster -C edb-postgres | sort | uniq -c | awk '{ if ($1 > 1 && $2 > 1) print $2}'); do
-  dir=$(readlink -f /proc/$i/exe)
+  dir=$(readlink -f /proc/$i/exe | cut -d" " -f1)
   if [[ ! -z $dir ]]; then 
      dir=$(dirname $dir)
      [[ -f $dir/pg_ctl ]] && echo "$i;$(dirname $dir);$(find_datadir_of_running_proc $i);$(find_port_of_running_proc $i)"

@@ -193,7 +193,8 @@ pgsetclsenv() {
 psqlout="$($TVD_PGHOME/bin/psql -U $PGBASENV_CHECK_USER -d $PGBASENV_CHECK_DATABASE -t <<EOF
 select 'dbv_cl_name:'||setting from pg_settings where name='cluster_name';
 select 'dbv_is_recmode:'||pg_is_in_recovery();
-select 'stb_status:'||sender_host||'|'||sender_port||'|'||status from pg_stat_wal_receiver;
+-- select 'stb_status:'||sender_host||'|'||sender_port||'|'||status from pg_stat_wal_receiver;
+select 'stb_status:'||substring(conninfo from 'host=[^\s]+')||'|'||substring(conninfo from 'port=\d+')||'|'||status from pg_stat_wal_receiver;
 select 'dbv_cls_size:'||pg_size_pretty(sum(pg_tablespace_size(spcname))) from pg_tablespace;
 select 'dbv_dbs:'||datname from pg_database;
 select 'dbv_dbs_user:'||datname from pg_database where datname not in ('postgres','enterprisedb','template0','template1');
@@ -223,8 +224,10 @@ EOF
   stb_status=$(dv stb_status)
   if [[ ! -z $stb_status ]]; then 
         export TVD_PGSTANDBY_STATUS=$(echo $stb_status | cut -d"|" -f3)
-        export TVD_PGMASTER_HOST=$(echo $stb_status | cut -d"|" -f1)
-        export TVD_PGMASTER_PORT=$(echo $stb_status | cut -d"|" -f2)
+        #export TVD_PGMASTER_HOST=$(echo $stb_status | cut -d"|" -f1)
+        export TVD_PGMASTER_HOST=$(echo $stb_status | cut -d"|" -f1 | cut -d"=" -f2)
+        #export TVD_PGMASTER_PORT=$(echo $stb_status | cut -d"|" -f2)
+        export TVD_PGMASTER_PORT=$(echo $stb_status | cut -d"|" -f2 | cut -d"=" -f2)
   fi
 
   # Overall cluster size, including all tablespaces
