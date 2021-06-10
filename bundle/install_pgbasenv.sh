@@ -126,13 +126,23 @@ set -- \"\${args[@]}\"
 [[ $? -gt 0 ]] && echo "ERROR: Cannot continue! Failed to create \$HOME/.pgbasenv_profile." && exit 1 || echo "SUCCESS"
 
 
-echo -e "\n>>> INSTALLATION STEP: Update \$HOME/.bash_profile.\n"
-cp $HOME/.bash_profile $HOME/.bash_profile.bak.0
-[[ $? -eq 0 ]] && echo "Backup created in $HOME/.bash_profile.bkp" || exit 1
+echo -e "\n>>> INSTALLATION STEP: Update $HOME/.pgsql_profile.\n"
+
+if [[ -f $HOME/.pgsql_profile ]]; then
+  cp $HOME/.pgsql_profile $HOME/.pgsql_profile.bak
+  [[ $? -eq 0 ]] && echo "Backup created in $HOME/.pgsql_profile.bak" || exit 1
+else
+  touch $HOME/.pgsql_profile
+fi
+
+# Remove from .bash_profile
 sed -i.bak '/pgBasEnv/d' $HOME/.bash_profile
 sed -i.bak '/pgbasenv_profile/d' $HOME/.bash_profile
-echo "# Added by pgBasEnv installer" >> $HOME/.bash_profile
-echo "[[ -f ~/.pgbasenv_profile ]] && source ~/.pgbasenv_profile && pgup && pgsetenvsta --default" >> $HOME/.bash_profile
+
+sed -i.bak '/pgBasEnv/d' $HOME/.pgsql_profile
+sed -i.bak '/pgbasenv_profile/d' $HOME/.pgsql_profile
+echo "# Added by pgBasEnv installer" >> $HOME/.pgsql_profile
+echo "[[ -f ~/.pgbasenv_profile ]] && source ~/.pgbasenv_profile && pgup && pgsetenvsta --default" >> $HOME/.pgsql_profile
 [[ $? -eq 0 ]] && echo "SUCCESS" || exit 1
 
 
