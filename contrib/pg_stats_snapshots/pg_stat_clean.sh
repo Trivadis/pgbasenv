@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2021 Trivadis AG <info@trivadis.com>
 #
@@ -20,10 +20,11 @@
 # Change log:
 #   29.06.2021: Michael: Initial version created
 #
-export PGHOME="/usr/pgsql-13/"
-export PATH="${PGHOME}/bin:${PATH}"
-export PGDATABASE=db01
-export PGPORT=20001
+
+# Source pgbasenv
+source $HOME/.pgbasenv_profile
+# Source the instance
+pgsetenv <pgbasenv alias>
 
 # cleanup older than 2 month
 psql -c "delete from stat_statements_snapshots sss where sss.created <= (date_trunc('DAYS',current_date) - interval '30 DAYS')::date" >>/tmp/pg_stat_cleanup.log

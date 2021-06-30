@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright 2021 Trivadis AG <info@trivadis.com>
 #
@@ -21,10 +21,10 @@
 #   29.06.2021: Michael: Initial version created
 #
 
-export PGHOME="/usr/pgsql-13/"
-export PATH="${PGHOME}/bin:${PATH}"
-export PGDATABASE=db01
-export PGPORT=20001
+# Source pgbasenv
+source $HOME/.pgbasenv_profile
+# Source the instance
+pgsetenv <pgbasenv alias>
 
 # collect pg_stat_statements
 psql -c "INSERT INTO stat_statements_snapshots SELECT now(), * FROM pg_stat_statements;" >>/tmp/pg_stat_stat.log
