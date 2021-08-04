@@ -117,7 +117,9 @@ Following two important environment files will be created in users home director
  - `.pgbasenv_profile`
 
 File `.PGBASENV_HOME`will be used as entry point for pgBasEnv.
-File `.pgbasenv_profile` can be used to source pgBasEnv global environment. It will be added to the users `.bash_profile` during installation.
+File `.pgbasenv_profile` can be used to source pgBasEnv global environment. It will be added by default to the users `~/.pgsql_profile` during installation. At next login pgBasEnv is sourced automatically.
+
+> Note: The installer adds the entry to .pgsql_profile because .bash_profile is overwritten anytime when a new PostgreSQL binary is installed (e.g. with yum install) and pgBasEnv would not be sourced automatically at login.
 
 Installer will ask for the following parameters which can affect the discovery process:
 | Parameter | Default value |Description|
