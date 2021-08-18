@@ -100,7 +100,7 @@ pgunsetclsenv() {
 
   # Unalias all db aliase
   local a
-  for a in $(alias -p | awk '{print $2}' | grep -E "^db." | cut -d"=" -f1); do
+  for a in $(alias -p | awk '{print $2}' | grep -E "^db\." | cut -d"=" -f1); do
     unalias "$a"
   done;
  
@@ -351,7 +351,7 @@ if [[ -z $pgbasenv_pgalias ]]; then
   
   if [[ -f $PGBASENV_BASE/etc/pghometab ]]; then
     while IFS=";" read -r _ _ _ alias; do
-       alias $alias="pgsetenvsta $alias"
+       [[ ! -z $alias ]] && alias $alias="pgsetenvsta $alias"
     done <<< "$(cat $PGBASENV_BASE/etc/pghometab | grep -vE '^ *#')"
   else
     echo "Failed to load $PGBASENV_BASE/etc/pghometab. File not exist."
@@ -360,7 +360,7 @@ if [[ -z $pgbasenv_pgalias ]]; then
   if [[ -f $PGBASENV_BASE/etc/pgclustertab ]]; then
     if [[ ! $(cat $PGBASENV_BASE/etc/pgclustertab | grep -vE '^ *#' | wc -l) -eq 0 ]]; then
       while IFS=";" read -r _ _ _ _ alias; do
-        alias $alias="pgsetenvsta $alias"
+        [[ ! -z $alias ]] && alias $alias="pgsetenvsta $alias"
       done <<< "$(cat $PGBASENV_BASE/etc/pgclustertab | grep -vE '^ *#')"
     fi
   else
