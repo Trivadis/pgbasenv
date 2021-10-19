@@ -28,7 +28,7 @@
 #   14.02.2020: Aychin: Added flock to prevent showing partial information.
 #
 
-declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
+declare -r LSOF=$([[ ! -f /bin/lsof ]] && which lsof || echo "lsof")
 
 # Set PGBASENV environment 
 if [[ -z $PGBASENV_BASE ]]; then

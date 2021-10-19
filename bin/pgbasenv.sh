@@ -29,7 +29,7 @@ declare -r SCRIPTDIR="$( cd "$(dirname "$0")" ; pwd -P )"
 declare -r VERSION=$(cat $SCRIPTDIR/VERSION)
 
 owner=$(id -un)
-declare -r LSOF=$([[ ! -f /bin/lsof ]] && echo "/usr/sbin/lsof" || echo "lsof")
+declare -r LSOF=$([[ ! -f /bin/lsof ]] && which lsof || echo "lsof")
 
 PGBASENV_EXCLUDE_DIRS_DEF="tmp proc sys"
 PGBASENV_EXCLUDE_FILESYSTEMS_DEF="nfs tmpfs"
