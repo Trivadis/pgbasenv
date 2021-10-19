@@ -338,7 +338,6 @@ TIMEDOUT_DIRS=$(echo "$ALL_DIRS" | grep TIMEDOUT_DIRS | cut -d"=" -f2)
 if [[ ! -z $TIMEDOUT_DIRS ]]; then
   echo "Next folder(s), timed out during scan. Exclude them or decrease scan depth or increase the timeout in pgbasenv.conf."
   echo "Root level folder(s):$TIMEDOUT_DIRS"
-  echo "Last search path was: $(echo "$ALL_DIRS" | grep -v TIMEDOUT_DIRS | tail -1)"
   exit 124
 fi
 

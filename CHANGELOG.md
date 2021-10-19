@@ -15,3 +15,5 @@
 * New styling was added to the output of the `u` alias (`pgup.sh`).
 * Other minor changes.
 
+### v1.9
+* `pgsetenv.sh` now accepts `--noscan option`. It will source the *pgBaseEnv* without scanning the filesystem. This argument can be used also in `$HOME/.pgbasenv_profile` to prevent filesystem scan every time on login.

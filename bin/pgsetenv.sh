@@ -21,7 +21,7 @@
 #
 # Change log:
 #   06.05.2020: Aychin: Initial version created
-#
+#   29.09.2021: Aychin: Version 1.9. Added the --noscan argument to avoid scanning. Only sourcing will be done.
 #
 
 
@@ -305,15 +305,27 @@ export -f pgsetenvsta
 
 ######### MAIN #####################################################
 
+unset pgbasenv_args pgbasenv_newargs
+pgbasenv_args="$@"
+
+for pgbasenv_args; do
+    if [[ ! $pgbasenv_args == "--noscan" ]]; then
+      pgbasenv_newargs+=("$pgbasenv_args")
+    else
+      pgbasenv_NOSCAN=1
+    fi
+done
+set -- "${pgbasenv_newargs[@]}"
+unset pgbasenv_args pgbasenv_newargs
 
 [[ ${1:0:1} == "-" && ! $1 =~ --default ]] && echo "ERROR: Wrong argument $1. It can be --default or alias or no argument at all." && return 1
+
 
 
 # Input variables
 # First can be alias or cluster data directory. The second is pg installation home alias to set with data directory alias
 pgbasenv_pgalias=$1
 pgbasenv_pghome=$2
-
 
 pgunsetconf
 
@@ -338,7 +350,9 @@ if [[ -z $pgbasenv_pgalias ]]; then
 
   pgunsetenv
   
-  $PGBASENV_BASE/bin/pgbasenv.sh
+  if [[ $pgbasenv_NOSCAN -ne 1 ]]; then
+    $PGBASENV_BASE/bin/pgbasenv.sh
+  fi
 
   # Begin exporting functions
   pgbasenv() { $PGBASENV_BASE/bin/pgbasenv.sh "$@";   }
@@ -413,7 +427,7 @@ if [[ -z $pgbasenv_PGHOME_ITEM && ! -z $pgbasenv_PGCLUSTER_ITEM ]]; then
   else
     pgbasenv_cluster_home=$(echo $pgbasenv_PGCLUSTER_ITEM | cut -d";" -f9)
   fi
-
+  
   if [[ -z $pgbasenv_cluster_home ]]; then
     echo "Warning: PATH was not set, because cluster home is unknown."
     export PATH=${PATH//PGBASENV:*:PGBASENV:/}
@@ -487,3 +501,4 @@ fi
 
 
 unset pgbasenv_cluster_home pgbasenv_cluster_port pgbasenv_PGHOME_ITEM pgbasenv_pgalias pgbasenv_PGCLUSTER_ITEM pgbasenv_pghome use_pgdata_as_alias
+unset pgbasenv_NOSCAN
