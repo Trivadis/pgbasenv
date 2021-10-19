@@ -121,6 +121,8 @@ File `.pgbasenv_profile` can be used to source pgBasEnv global environment. It w
 
 > Note: The installer adds the entry to .pgsql_profile because .bash_profile is overwritten anytime when a new PostgreSQL binary is installed (e.g. with yum install) and pgBasEnv would not be sourced automatically at login.
 
+To prevent the filesystem scan on each login, you can update `.pgbasenv_profile` file and add `--noscan` option to the `pgsetenv.sh` call.
+
 Installer will ask for the following parameters which can affect the discovery process:
 | Parameter | Default value |Description|
 |--|--|--|
@@ -365,6 +367,8 @@ Examples:
 Can be used inside the scripts, eliminates lookup for the alias name.
 
 Another option for `pgsetenv` is the argument `--default`. When executed with this argument, the environment for default alias will be set. It will identified based on variable `PGBASENV_INITIAL_ALIAS` in the `$PGBASENV_BASE/etc/pgbasenv.conf` file.
+
+By default `pgsetenv` will scan the filesystem to find any new installations and data directories. Sometimes it is better to source without scanning, in this case use `--noscan` option.
 
 
 `pgsetenv` will source following resources to the current shell: 
