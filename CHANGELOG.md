@@ -1,3 +1,10 @@
+### v2.0
+* fixed an issues in detecting non-ssl Postgres Homes
+
+### v1.9
+* `pgsetenv.sh` now accepts `--noscan` option. It will source the *pgBaseEnv* without scanning the filesystem. This argument can be used also in `$HOME/.pgbasenv_profile` to prevent filesystem scan every time on login.
+  
+
 ### v1.5
 
 * Additional information about standby status and incoming data stream will be reported. Now status of the wal receiver and master node:port will be reported. Standby status string: `Cluster role: STANDBY [ Status: streaming Master: masternode:5435 In recovery: YES ]`. As usual all these information will be available from the evn variables `TVD_PGMASTER_HOST`, `TVD_PGMASTER_PORT` and `TVD_PGSTANDBY_STATUS`.
@@ -14,9 +21,3 @@
 * To prevent *pgclustertab* and *pghometab* corruption during simultaneous execution, operations will be executed over `flock` utility. It will guarantee a sequential access to those files and  `pgbasenv.sh` execution.
 * New styling was added to the output of the `u` alias (`pgup.sh`).
 * Other minor changes.
-
-### v1.9
-* `pgsetenv.sh` now accepts `--noscan` option. It will source the *pgBaseEnv* without scanning the filesystem. This argument can be used also in `$HOME/.pgbasenv_profile` to prevent filesystem scan every time on login.
-
-### v2.0
-* fixed an issues in detecting non-ssl Postgres Homes
