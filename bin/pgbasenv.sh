@@ -23,6 +23,7 @@
 #   06.05.2020: Aychin: Initial version created
 #   03.12.2020: Aychin: Check lsof location. Required for remote execution.
 #   14.02.2020: Aychin: Added flock to serialize tab files access.
+#   20.10.2021: Michael: changed SSL detection of Postgres Homes
 #
 
 declare -r SCRIPTDIR="$( cd "$(dirname "$0")" ; pwd -P )"
@@ -127,7 +128,13 @@ for d in $(echo $ALL_DIRS); do
 
      # Extract ssl option, segment size and block size
      with_ssl=$(echo "$home_config" | grep "^CONFIGURE" | grep -c "\--with-openssl")
-     [[ -z $with_ssl ]] && with_ssl="no-ssl" || with_ssl="ssl"
+     
+     if [[ $with_ssl == 0 ]]
+     then 
+       with_ssl="no-ssl"
+     else
+       with_ssl="ssl"
+     fi
      seg_size=$(echo "$home_config" | grep "^CONFIGURE" | grep -oE "\--with-segsize=[0-9]+" | cut -d"=" -f2)
      [[ -z $seg_size ]] && seg_size="1G" || seg_size="${seg_size}G"
      block_size=$(echo "$home_config" | grep "^CONFIGURE" | grep -oE "\--with-blocksize=[0-9]+" | cut -d"=" -f2)
