@@ -17,3 +17,6 @@
 
 ### v1.9
 * `pgsetenv.sh` now accepts `--noscan` option. It will source the *pgBaseEnv* without scanning the filesystem. This argument can be used also in `$HOME/.pgbasenv_profile` to prevent filesystem scan every time on login.
+
+### v2.0
+* fixed an issues in detecting non-ssl Postgres Homes
