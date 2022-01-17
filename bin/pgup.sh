@@ -108,7 +108,7 @@ print_pgclustertab() {
   fi
   local ddcnt=$(cat $pgclustertab_file | grep -vE '^ *#' | wc -l)
   if [[ $ddcnt -eq 0 ]]; then
-    echo -e "\n --- No clustr data directories found. --- \n"
+    echo -e "\n --- No cluster data directories found. --- \n"
     return 0
   fi
 
