@@ -192,7 +192,7 @@ find_datadir_of_running_proc() {
   local pid
   pid=$1
   if [[ -h /proc/${pid}/cwd && -f /proc/${pid}/cwd/global/pg_control ]]; then
-    readlink -f /proc/${ppid}/cwd
+    readlink -f /proc/${pid}/cwd
   else
     local d
     for d in $($LSOF -p $1 2> /dev/null | grep DIR | awk '{print $9}'); do
