@@ -204,7 +204,7 @@ fi
 echo "-- PGBASENV BEGIN ---------------------------------" >> ~/.psqlrc
 echo "\set pgbasenv_base \`echo \"$PGBASENV_BASE\"\`" >> ~/.psqlrc
 echo "\! $PGBASENV_BASE/bin/scriptmgr.sh prep" >> ~/.psqlrc
-echo "select substring(''||:VERSION_NAME, 1, position('.' in ''||:VERSION_NAME)-1) as pgreleasenum" >> ~/.psqlrc
+echo "select substring(''||:'VERSION_NAME', 1, position('.' in ''||:'VERSION_NAME')-1) as pgreleasenum" >> ~/.psqlrc
 echo "\gset" >> ~/.psqlrc
 echo "\i :pgbasenv_base/scripts/.run.:pgreleasenum" >> ~/.psqlrc
 echo "-- PGBASENV END -----------------------------------" >> ~/.psqlrc
