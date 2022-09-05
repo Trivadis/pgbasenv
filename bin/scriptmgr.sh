@@ -31,7 +31,7 @@ printf "├" && printf "─%.0s" {1..31} && printf "┼" && printf "─%.0s" {1.
 count=0
   while read -r file
   do
-  	 ignore_version=0
+     ignore_version=0
      s_name=$(grep "^--.*NAME:" $file | cut -d":" -f2 | xargs)
      [[ -z $s_name ]] && s_name=$(basename $file) && s_name=${s_name%%.sql}
      s_vers=$(grep "^--.*VERSION:" $file | cut -d":" -f2 | xargs)
@@ -47,17 +47,40 @@ printf " %s\n\n" "Count: $count"
 fi
 
 
+# Re-write .psqlrc only if SQL files changed in the scripts folder
 if [[ $1 == "prep" ]]; then
-  echo "\set scripts '\\\! $PGBASENV_BASE/bin/scriptmgr.sh list'" > $PGBASENV_BASE/scripts/.run.${TVD_PGVERSION}
-  while read -r file
-  do
-  	 ignore_version=0
-     s_name=$(grep "^--.*NAME:" $file | cut -d":" -f2 | xargs)
-     [[ -z $s_name ]] && s_name=$(basename $file) && s_name=${s_name%%.sql}
-     s_vers=$(grep "^--.*VERSION:" $file | cut -d":" -f2 | xargs)
-     [[ -z $s_vers ]] && ignore_version=1
-     if [[ ${TVD_PGVERSION} -ge ${s_vers:-0} || $ignore_version -eq 1 ]]; then
-        echo "\set ${s_name} '\\\i ${file}'" >> $PGBASENV_BASE/scripts/.run.${TVD_PGVERSION}    
-     fi
-  done < <(ls -1 $PGBASENV_BASE/scripts/*.sql)
+  # Get the checksum based on filename and change
+  currentmd5=`find $PGBASENV_BASE/scripts -maxdepth 1 -type f -iname "*.sql" -printf "%f,%CY-%Cm-%Cd_%CT\n" | sort | md5sum | awk '{ print $1 }'`
+  # Get the checksum from the last check
+  if [[ -f $PGBASENV_BASE/scripts/.script_changes.md5 ]]; then
+    oldmd5=`cat $PGBASENV_BASE/scripts/.script_changes.md5`
+  else
+    oldmd5="n/a"
+  fi
+
+  if [[ $currentmd5 != $oldmd5 ]]; then
+    # Lock the version specific .run.${TVD_PGVERSION} file.
+    # This avoids concurrency issues if psql is called at the same time and the contents in scripts folder changed!
+    exec 9<>$PGBASENV_BASE/scripts/.run.${TVD_PGVERSION}
+    flock -x -w 3 9
+
+    # Write new checksum to the md5 file
+    echo $currentmd5 > $PGBASENV_BASE/scripts/.script_changes.md5
+
+    echo "\set scripts '\\\! $PGBASENV_BASE/bin/scriptmgr.sh list'" > $PGBASENV_BASE/scripts/.run.${TVD_PGVERSION}
+    while read -r file
+    do
+      ignore_version=0
+      s_name=$(grep "^--.*NAME:" $file | cut -d":" -f2 | xargs)
+      [[ -z $s_name ]] && s_name=$(basename $file) && s_name=${s_name%%.sql}
+      s_vers=$(grep "^--.*VERSION:" $file | cut -d":" -f2 | xargs)
+      [[ -z $s_vers ]] && ignore_version=1
+      if [[ ${TVD_PGVERSION} -ge ${s_vers:-0} || $ignore_version -eq 1 ]]; then
+          echo "\set ${s_name} '\\\i ${file}'" >> $PGBASENV_BASE/scripts/.run.${TVD_PGVERSION}    
+      fi
+    done < <(ls -1 $PGBASENV_BASE/scripts/*.sql)
+    
+    # Release the lock
+    exec 9>&-
+  fi
 fi
