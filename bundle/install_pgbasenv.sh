@@ -68,6 +68,19 @@ if [[ $? -gt 0 ]]; then
   fi
 fi
 
+# Check if md5sum is installed, required by scriptmgr.sh
+command -v md5sum > /dev/null
+if [[ $? -gt 0 ]]; then
+  if [[ -z $SILENT ]]; then
+     read -p "Cannot find md5sum command. It is required to correctly execute scriptmgr.sh used in .psqlrc. Ignore Y or N [N]: " IGNORE_MD5SUM
+     IGNORE_MD5SUM=${IGNORE_MD5SUM:-N}
+     [[ "$IGNORE_MD5SUM" == "N" ]] && exit 0
+  else
+     echo "ERROR: Cannot find md5sum command. It is required to correctly execute scriptmgr.sh used in .psqlrc."
+     exit 1
+  fi
+fi
+
 TARFILE=$(ls -1 pgbasenv-*.tar 2>/dev/null | sort -n -t"-" -k2 | tail -1)
 if [[ -z $TARFILE ]]; then
 	echo "ERROR: Tar file pgbasenv-(VERSION).tar do not found in current directory!"
@@ -204,7 +217,7 @@ fi
 echo "-- PGBASENV BEGIN ---------------------------------" >> ~/.psqlrc
 echo "\set pgbasenv_base \`echo \"$PGBASENV_BASE\"\`" >> ~/.psqlrc
 echo "\! $PGBASENV_BASE/bin/scriptmgr.sh prep" >> ~/.psqlrc
-echo "select substring(''||:VERSION_NAME, 1, position('.' in ''||:VERSION_NAME)-1) as pgreleasenum" >> ~/.psqlrc
+echo "select substring(''||:'VERSION_NAME', 1, position('.' in ''||:'VERSION_NAME')-1) as pgreleasenum" >> ~/.psqlrc
 echo "\gset" >> ~/.psqlrc
 echo "\i :pgbasenv_base/scripts/.run.:pgreleasenum" >> ~/.psqlrc
 echo "-- PGBASENV END -----------------------------------" >> ~/.psqlrc
