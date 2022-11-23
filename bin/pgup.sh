@@ -179,7 +179,7 @@ printf "├─" && printf "%s" "$(hl ${alias_max})" && printf "┼─" && printf
 # PID;HOME;DATADIR;PORT
 find_running_procs() {
 local i dir
-for i in $(ps -o ppid= -C postgres -C postmaster -C edb-postgres | sort | uniq -c | awk '{ if ($1 > 1 && $2 > 1) print $2}'); do
+for i in $(ps -o ppid= -C postgres -C postmaster -C edb-postgres -C edb-postmaster | sort | uniq -c | awk '{ if ($1 > 1 && $2 > 1) print $2}'); do
   dir=$(readlink -f /proc/$i/exe | cut -d" " -f1)
   if [[ ! -z $dir ]]; then 
      dir=$(dirname $dir)
