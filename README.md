@@ -255,7 +255,9 @@ First discovery will be executed during installation.
 
 To execute discovery again, in case if some new home was installed or new cluster was created, then `pgbasenv` can be manually executed.
 
-By default it will updated existing **pghometab** and **pgclustertab** files.
+Every execution of `pgbasenv` discovers PostgreSQL binary installations as well as database clusters based on the $PGDATA directory. By default, it will update existing **pghometab** and **pgclustertab** files. The update will add new discovered entries but not delete any formerly existing entry. This means, if for example a certain $PGDATA directory is temporarily not accessible because of an ongoing restore or standby reinstate operation a concorrent `pgbasenv` execution will not delete this cluster database entry from **pgclustertab**. There is a dedicated parameter `--clean-pgclustertab` to delete non-existing database cluster entries from **pgclustertab**.
+
+    $ pgbasenv --clean-pgclustertab
 
 There is option to forcefully re-create both tab files from scratch with `--force` option.
 

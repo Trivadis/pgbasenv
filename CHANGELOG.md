@@ -1,3 +1,6 @@
+## v2.2
+* Changed discovery behaviour that non-existing database clusters are not deleted anymore including new parameter `--clean-pgclustertab`. [See chapter Discovery](https://github.com/Trivadis/pgbasenv#discovery)
+
 ## v2.1
 * Improved cluster detection (issue #12) to reduce performance overhead
 * Improved `scriptmgr.sh prep` call (issue #11)
