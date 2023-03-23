@@ -303,12 +303,29 @@ generate_pgclustertab() {
     data_ids="$(cat $pgclustertab_file | grep -vE '^ *#' | awk -F";" '{print $1";"$3";"$4";"$5}')"
     # Pass data dir ids to the data dir discovery function
     local save_comments="$(cat $pgclustertab_file | grep -E '^ *#')"
+    #new_file=$(find_pg_data "$data_ids" | sort -k 4 -t ";")
+    new_file=$(find_pg_data "$data_ids")
     if [[ -z $save_comments ]]; then
-      find_pg_data "$data_ids" > $pgclustertab_file
+      # -n avoids newline since pgclustertab should not contain empty lines
+      echo -n "" > $pgclustertab_file
     else
      echo "$save_comments" > $pgclustertab_file
-     find_pg_data "$data_ids" >> $pgclustertab_file
     fi
+
+    # Append cluster entries from existing (former) pgclustertab to new file if they were not detected anymore.
+    # By default ,the tool keeps clusters that cannot be detected anymore on the system.
+    # This avoids that clusters disappears from pgclustertab for example during a restore when global/pg_control is not accessible
+    # and pgBasEnv cannot detect the cluster temporarily.
+    for i in $old_file
+    do
+     echo $new_file | grep -q $i
+     if [[ $? -eq 1 ]] && [[ $pgbasenv_CLEAN_PGCLUSTERTAB -eq 0 ]]; then
+      new_file=$(echo -e "$new_file\n$i")
+     fi
+    done
+
+    echo "$new_file" | sort >> $pgclustertab_file
+    # Write changes to the change file
     change=$(diff <(echo "$old_file") $pgclustertab_file)
     if [[ $? -gt 0 ]]; then
        echo "-----$(date +"%Y-%m-%d %H:%M:%S")----------------------------------------------------------------" >> $pgclustertab_file.change
@@ -329,13 +346,18 @@ generate_pgclustertab() {
 
 ###### MAIN ##########################################
 
-[[ ! $1 =~ --force|--version|^$ ]] && echo "ERROR: Wrong argument $1. It can be --force or --version." && exit 1
+[[ ! $1 =~ --force|--version|--clean-pgclustertab|^$ ]] && echo "ERROR: Wrong argument $1. It can be --clean-pgclustertab, --force or --version." && exit 1
 
 [[ $1 == "--version" ]] && echo "$VERSION" && exit 0
 if [[ $1 == "--force" ]]; then
    echo -e "\nExecuting in force mode.\n"
-   rm $pghometab_file 2> /dev/null 
-   rm $pgclustertab_file 2> /dev/null 
+   rm $pghometab_file 2> /dev/null
+   rm $pgclustertab_file 2> /dev/null
+fi
+pgbasenv_CLEAN_PGCLUSTERTAB=0
+if [[ $1 == "--clean-pgclustertab" ]]; then
+   echo -e "\nExecuting in clean pgclustertab mode.\n"
+   pgbasenv_CLEAN_PGCLUSTERTAB=1
 fi
 
 

@@ -309,10 +309,15 @@ unset pgbasenv_args pgbasenv_newargs
 pgbasenv_args="$@"
 
 for pgbasenv_args; do
-    if [[ ! $pgbasenv_args == "--noscan" ]]; then
+    if [[ ! $pgbasenv_args == "--noscan" ]] && [[ ! $pgbasenv_args == "--clean-pgclustertab" ]]; then
       pgbasenv_newargs+=("$pgbasenv_args")
     else
-      pgbasenv_NOSCAN=1
+      if [[ $pgbasenv_args == "--noscan" ]]; then
+        pgbasenv_NOSCAN=1
+      fi
+      if [[ $pgbasenv_args == "--clean-pgclustertab" ]]; then
+        pgbasenv_CLEAN_PGCLUSTERTAB="--clean-pgclustertab"
+      fi
     fi
 done
 set -- "${pgbasenv_newargs[@]}"
@@ -351,7 +356,7 @@ if [[ -z $pgbasenv_pgalias ]]; then
   pgunsetenv
   
   if [[ $pgbasenv_NOSCAN -ne 1 ]]; then
-    $PGBASENV_BASE/bin/pgbasenv.sh
+    $PGBASENV_BASE/bin/pgbasenv.sh ${pgbasenv_CLEAN_PGCLUSTERTAB}
   fi
 
   # Begin exporting functions
@@ -502,3 +507,4 @@ fi
 
 unset pgbasenv_cluster_home pgbasenv_cluster_port pgbasenv_PGHOME_ITEM pgbasenv_pgalias pgbasenv_PGCLUSTER_ITEM pgbasenv_pghome use_pgdata_as_alias
 unset pgbasenv_NOSCAN
+unset pgbasenv_CLEAN_PGCLUSTERTAB
