@@ -318,13 +318,16 @@ generate_pgclustertab() {
     # and pgBasEnv cannot detect the cluster temporarily.
     for i in $old_file
     do
-     echo $new_file | grep -q $i
-     if [[ $? -eq 1 ]] && [[ $pgbasenv_CLEAN_PGCLUSTERTAB -eq 0 ]]; then
-      new_file=$(echo -e "$new_file\n$i")
-     fi
+      echo $new_file | grep -q $i
+      if [[ $? -eq 1 ]] && [[ $pgbasenv_CLEAN_PGCLUSTERTAB -eq 0 ]]; then
+        new_file=$(echo -e "$new_file\n$i")
+      fi
     done
 
-    echo "$new_file" | sort >> $pgclustertab_file
+    # sed removes empty lines since pgclustertab must not have any of them.
+    # Empty lines can occur if no instance can be detected
+    echo "$new_file" | sed '/^$/d' | sort >> $pgclustertab_file
+
     # Write changes to the change file
     change=$(diff <(echo "$old_file") $pgclustertab_file)
     if [[ $? -gt 0 ]]; then
