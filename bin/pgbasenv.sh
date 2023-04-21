@@ -185,7 +185,7 @@ local existing_data_ids="$1"
 local existing_ids=" $(echo "$existing_data_ids" | cut -d";" -f4) "
 local d dir size ftime home fhtime version data_id data_ids existing_data_id id_length orig_length skip existing_port existing_home
 for d in $(echo $ALL_DIRS); do
-  if [[ -f $d/pg_control ]]; then
+  if [[ -f $d/pg_control && -O $d/pg_control ]]; then
     dir="$(dirname $d)"
     [[ -f $dir/PG_VERSION ]] && version=$(head -1 $dir/PG_VERSION) || version=0
     if [[ -f $dir/postmaster.opts ]]; then
