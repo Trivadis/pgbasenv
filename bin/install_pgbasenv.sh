@@ -25,8 +25,8 @@
 
 # Defaults
 TVDBASE_DEF=$HOME/tvdtoolbox
-PGBASENV_EXCLUDE_DIRS_DEF="tmp proc sys"
-PGBASENV_EXCLUDE_FILESYSTEMS_DEF="nfs tmpfs"
+PGBASENV_EXCLUDE_DIRS_DEF="bin boot dev etc lib lib32 lib64 proc root run sbin sys tmp usr"
+PGBASENV_EXCLUDE_FILESYSTEMS_DEF="autofs nfs nfs4 ramfs tmpfs"
 PGBASENV_SEARCH_MAXDEPTH_DEF=7
 PGBASENV_INITIAL_ALIAS_DEF=
 
