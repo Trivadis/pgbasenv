@@ -183,20 +183,27 @@ done
 find_pg_data() {
 local existing_data_ids="$1"
 local existing_ids=" $(echo "$existing_data_ids" | cut -d";" -f4) "
-local d dir size ftime home fhtime version data_id data_ids existing_data_id id_length orig_length skip existing_port existing_home
+local d dir size ftime home fhtime version data_id data_ids existing_data_id id_length orig_length skip existing_port existing_home cluster_name
 for d in $(echo $ALL_DIRS); do
   if [[ -f $d/pg_control && -O $d/pg_control ]]; then
     dir="$(dirname $d)"
     [[ -f $dir/PG_VERSION ]] && version=$(head -1 $dir/PG_VERSION) || version=0
     if [[ -f $dir/postmaster.opts ]]; then
       home=$(dirname $(dirname $(cat $dir/postmaster.opts | awk '{print $1}')))
+      content=$(cat $dir/postmaster.opts)
+      cluster_name=$(grep -q "cluster_name=" $dir/postmaster.opts && echo ${content#*--cluster_name=} | awk '{ print $1 }' | sed 's/.$//')
     else
       home=""
+      cluster_name=""
     fi
 
     # Define id for the current data dir
      if [[ -z $existing_data_ids ]]; then
-       data_id="pgd${version//./}"
+       if [[ ! -z $cluster_name ]]; then
+         data_id=$cluster_name
+       else
+         data_id="pgd${version//./}"
+       fi
        skip=0
      else
        # Data dir id was already defined then we will use the same one
@@ -207,7 +214,11 @@ for d in $(echo $ALL_DIRS); do
        if [[ ! -z $existing_data_id ]]; then 
           data_id=$existing_data_id && skip=1
        else
-          data_id="pgd${version//./}" && skip=0
+         if [[ ! -z $cluster_name ]]; then
+           data_id=$cluster_name && skip=0
+         else
+           data_id="pgd${version//./}" && skip=0
+         fi
        fi
      fi
 
